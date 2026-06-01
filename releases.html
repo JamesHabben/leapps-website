@@ -197,6 +197,8 @@
       padding: .2rem .6rem; letter-spacing: .1em; text-transform: uppercase;
     }
     .lp-release-body { font-size: .85rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; white-space: pre-wrap; word-break: break-word; }
+    .lp-show-more { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .06em; color: var(--gold); background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap; transition: opacity .2s; }
+    .lp-show-more:hover { opacity: .75; }
     .lp-release-assets { display: flex; gap: .5rem; flex-wrap: wrap; }
     .lp-asset-btn {
       display: inline-flex; align-items: center; gap: .4rem;
@@ -688,7 +690,18 @@
       if (!body) return '';
       const plain = body.replace(/#{1,6}\s/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/`/g, '').trim();
       if (plain.length <= max) return plain;
-      return plain.slice(0, max).trimEnd() + '…';
+      const id = 'rlbody-' + Math.random().toString(36).slice(2);
+      const short = plain.slice(0, max).trimEnd();
+      return `<span id="${id}-short">${short}… <button class="lp-show-more" onclick="lpToggleBody('${id}')">Show more</button></span><span id="${id}-full" style="display:none">${plain} <button class="lp-show-more" onclick="lpToggleBody('${id}')">Show less</button></span>`;
+    }
+
+    function lpToggleBody(id) {
+      const s = document.getElementById(id + '-short');
+      const f = document.getElementById(id + '-full');
+      if (!s || !f) return;
+      const collapsed = s.style.display !== 'none';
+      s.style.display = collapsed ? 'none' : '';
+      f.style.display = collapsed ? '' : 'none';
     }
 
     function renderReleases(id, releases, tool) {

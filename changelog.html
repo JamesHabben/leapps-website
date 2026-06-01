@@ -134,6 +134,8 @@
     .lp-cl-body { font-size: .85rem; color: var(--muted); line-height: 1.6; }
     .lp-cl-link { font-family: var(--font-mono); font-size: .65rem; color: var(--muted); text-decoration: none !important; display: inline-flex; align-items: center; gap: .3rem; margin-top: .5rem; transition: color .2s; }
     .lp-cl-link:hover { color: var(--gold); }
+    .lp-show-more { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .06em; color: var(--gold); background: none; border: none; cursor: pointer; padding: 0; transition: opacity .2s; }
+    .lp-show-more:hover { opacity: .75; }
 
     /* STATS BAR */
     .lp-cl-stats { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
@@ -302,8 +304,20 @@
     function truncateBody(body, max = 200) {
       if (!body) return '';
       const plain = body.replace(/#{1,6}\s/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/`/g, '').trim();
-      const truncated = plain.length <= max ? plain : plain.slice(0, max).trimEnd() + '…';
-      return escapeHtml(truncated);
+      if (plain.length <= max) return escapeHtml(plain);
+      const short = escapeHtml(plain.slice(0, max).trimEnd());
+      const full  = escapeHtml(plain);
+      const id    = 'clbody-' + Math.random().toString(36).slice(2);
+      return `<span id="${id}-short">${short}… <button class="lp-show-more" onclick="lpToggleBody('${id}')">Show more</button></span><span id="${id}-full" style="display:none">${full} <button class="lp-show-more" onclick="lpToggleBody('${id}')">Show less</button></span>`;
+    }
+
+    function lpToggleBody(id) {
+      const s = document.getElementById(id + '-short');
+      const f = document.getElementById(id + '-full');
+      if (!s || !f) return;
+      const collapsed = s.style.display !== 'none';
+      s.style.display = collapsed ? 'none' : '';
+      f.style.display = collapsed ? '' : 'none';
     }
 
     let allEntries = [];
