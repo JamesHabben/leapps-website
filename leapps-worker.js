@@ -30,6 +30,11 @@ export default {
       return corsResponse(JSON.stringify({ error: 'Method not allowed' }), 405);
     }
 
+    // Blog RSS feed route: /blog/feed
+    if (url.pathname === '/blog/feed') {
+      return handleBlogFeed(env);
+    }
+
     // Blog content route: /blog/posts/index.json or /blog/posts/{slug}.md
     if (url.pathname.startsWith('/blog/posts/')) {
       return handleBlogRequest(url, env);
@@ -134,6 +139,71 @@ async function handleBlogRequest(url, env) {
     status: 200,
     headers: {
       'Content-Type': contentType,
+      'Cache-Control': `public, max-age=${BLOG_CACHE_TTL}`,
+      'Access-Control-Allow-Origin': '*',
+      'X-Cache': 'MISS',
+    },
+  });
+  await cache.put(cacheKey, responseToCache.clone());
+
+  return responseToCache;
+}
+
+async function handleBlogFeed(env) {
+  const indexUrl = `https://raw.githubusercontent.com/${BLOG_REPO}/${BLOG_BRANCH}/blog/posts/index.json`;
+
+  const cache = caches.default;
+  const cacheKey = new Request(`${indexUrl}__feed`);
+  const cached = await cache.match(cacheKey);
+  if (cached) {
+    const cachedResponse = new Response(cached.body, cached);
+    cachedResponse.headers.set('X-Cache', 'HIT');
+    cachedResponse.headers.set('Access-Control-Allow-Origin', '*');
+    return cachedResponse;
+  }
+
+  const headers = { 'User-Agent': 'LEAPPs-Worker/1.0' };
+  if (env.GITHUB_TOKEN) headers['Authorization'] = `Bearer ${env.GITHUB_TOKEN}`;
+
+  const upstream = await fetch(indexUrl, { headers });
+  if (!upstream.ok) {
+    return new Response('Failed to load feed', { status: 502 });
+  }
+
+  const posts = await upstream.json();
+
+  const items = posts.map(post => {
+    const pubDate = new Date(post.date + 'T00:00:00Z').toUTCString();
+    const link = `https://leapps.org/blog-post?post=${encodeURIComponent(post.slug)}`;
+    const desc = (post.excerpt || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&apos;');
+    const title = (post.title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `
+    <item>
+      <title>${title}</title>
+      <link>${link}</link>
+      <guid isPermaLink="true">${link}</guid>
+      <pubDate>${pubDate}</pubDate>
+      <author>${post.author || ''}</author>
+      <description>${desc}</description>
+    </item>`;
+  }).join('');
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>LEAPPs Blog</title>
+    <link>https://leapps.org/blog</link>
+    <description>Forensics deep dives, tool updates, artifact write-ups, and community contributions from the LEAPPs project.</description>
+    <language>en-us</language>
+    <atom:link href="https://leapps-api.4n6-198.workers.dev/blog/feed" rel="self" type="application/rss+xml" />
+    ${items}
+  </channel>
+</rss>`;
+
+  const responseToCache = new Response(xml, {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/rss+xml; charset=utf-8',
       'Cache-Control': `public, max-age=${BLOG_CACHE_TTL}`,
       'Access-Control-Allow-Origin': '*',
       'X-Cache': 'MISS',
