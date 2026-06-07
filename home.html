@@ -960,7 +960,15 @@
       {
         "@type": "WebSite",
         "name": "LEAPPs",
-        "url": "https://leapps.org"
+        "url": "https://leapps.org",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://leapps.org/artifacts?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
       },
       {
         "@type": "SoftwareApplication",

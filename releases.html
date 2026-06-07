@@ -469,11 +469,80 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "Releases — LEAPPs",
-    "description": "Download the latest releases of iLEAPP, ALEAPP, RLEAPP, VLEAPP, and LAVA — free open-source digital forensics tools.",
-    "url": "https://leapps.org/releases",
-    "isPartOf": { "@type": "WebSite", "name": "LEAPPs", "url": "https://leapps.org" }
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "Releases — LEAPPs",
+        "description": "Download the latest releases of iLEAPP, ALEAPP, RLEAPP, VLEAPP, and LAVA — free open-source digital forensics tools.",
+        "url": "https://leapps.org/releases",
+        "isPartOf": { "@type": "WebSite", "name": "LEAPPs", "url": "https://leapps.org" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "iLEAPP",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "iOS Logs, Events and Plists Parser — free open-source tool for parsing artifacts from iOS and iPadOS device extractions.",
+        "url": "https://leapps.org/releases",
+        "downloadUrl": "https://github.com/abrignoni/iLEAPP/releases",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://opensource.org/licenses/Apache-2.0",
+        "author": { "@type": "Person", "name": "Alexis Brignoni", "url": "https://github.com/abrignoni" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "ALEAPP",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "Android Logs, Events and Plists Parser — free open-source tool for parsing artifacts from Android device extractions.",
+        "url": "https://leapps.org/releases",
+        "downloadUrl": "https://github.com/abrignoni/ALEAPP/releases",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://opensource.org/licenses/Apache-2.0",
+        "author": { "@type": "Person", "name": "Alexis Brignoni", "url": "https://github.com/abrignoni" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "RLEAPP",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "Returns, Logs, Events and Properties Parser — free open-source tool for parsing ISP returns and social media data.",
+        "url": "https://leapps.org/releases",
+        "downloadUrl": "https://github.com/abrignoni/RLEAPP/releases",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://opensource.org/licenses/Apache-2.0",
+        "author": { "@type": "Person", "name": "Alexis Brignoni", "url": "https://github.com/abrignoni" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "VLEAPP",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "Vehicle Logs, Events and Plists Parser — free open-source tool for parsing artifacts from vehicle infotainment and telematics systems.",
+        "url": "https://leapps.org/releases",
+        "downloadUrl": "https://github.com/abrignoni/VLEAPP/releases",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://opensource.org/licenses/Apache-2.0",
+        "author": { "@type": "Person", "name": "Alexis Brignoni", "url": "https://github.com/abrignoni" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "LAVA",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "LEAPP Artifact Viewer App — free open-source visualization tool for exploring and presenting LEAPPs forensic report data.",
+        "url": "https://leapps.org/releases",
+        "downloadUrl": "https://github.com/abrignoni/LAVA/releases",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://opensource.org/licenses/Apache-2.0",
+        "author": { "@type": "Person", "name": "Alexis Brignoni", "url": "https://github.com/abrignoni" }
+      }
+    ]
   }
   </script>
 </head>
