@@ -436,11 +436,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script>
     const tools = [
-      { name: 'iLEAPP', platform: 'iOS · iPadOS',   repo: 'abrignoni/iLEAPP',         openSource: true  },
-      { name: 'ALEAPP', platform: 'Android',         repo: 'abrignoni/ALEAPP',         openSource: true  },
-      { name: 'RLEAPP', platform: 'ISP Returns',     repo: 'abrignoni/RLEAPP',         openSource: true  },
-      { name: 'VLEAPP', platform: 'Vehicle Systems', repo: 'abrignoni/VLEAPP',         openSource: true  },
-      { name: 'LAVA',   platform: 'All Platforms',   repo: 'leapps-org/LAVA-releases', openSource: false },
+      { name: 'iLEAPP', platform: 'iOS · iPadOS',   repo: 'abrignoni/iLEAPP',         openSource: true,  color: '#E30613' },
+      { name: 'ALEAPP', platform: 'Android',         repo: 'abrignoni/ALEAPP',         openSource: true,  color: '#A4C639' },
+      { name: 'RLEAPP', platform: 'ISP Returns',     repo: 'abrignoni/RLEAPP',         openSource: true,  color: '#4BA3C7' },
+      { name: 'VLEAPP', platform: 'Vehicle Systems', repo: 'abrignoni/VLEAPP',         openSource: true,  color: '#531dab' },
+      { name: 'LAVA',   platform: 'All Platforms',   repo: 'leapps-org/LAVA-releases', openSource: false, color: '#F5C020' },
     ];
 
     function fmt(n) {
@@ -474,7 +474,7 @@
     function initCharts(labels, dlData, starData) {
       dlChart = new Chart(document.getElementById('dlChart'), {
         type: 'bar',
-        data: { labels, datasets: [{ data: dlData, backgroundColor: '#378ADD', borderRadius: 3 }] },
+        data: { labels, datasets: [{ data: dlData, backgroundColor: ['#E30613', '#A4C639', '#4BA3C7', '#531dab', '#F5C020'], borderRadius: 3 }] },
         options: buildChartOptions()
       });
       starChart = new Chart(document.getElementById('starChart'), {
@@ -522,7 +522,7 @@
           }
 
           return {
-            name: t.name, platform: t.platform, openSource: t.openSource,
+            name: t.name, platform: t.platform, openSource: t.openSource, color: t.color,
             stars: repo.stargazers_count || 0,
             forks: repo.forks_count || 0,
             openIssues: repo.open_issues_count || 0,
@@ -585,7 +585,7 @@
             </td>
             <td class="lp-td-with-bar">
               ${fmt(r.downloads)}
-              <div class="lp-bar-wrap"><div class="lp-bar-fill lp-bar-dl" style="width:${maxDl > 0 ? Math.round(r.downloads/maxDl*100) : 0}%"></div></div>
+              <div class="lp-bar-wrap"><div class="lp-bar-fill" style="width:${maxDl > 0 ? Math.round(r.downloads/maxDl*100) : 0}%;background:${r.color}"></div></div>
             </td>
             <td class="lp-td-with-bar">
               ${fmt(r.stars)}
@@ -626,19 +626,16 @@
     let dlHistoryChart = null;
     let dlSnapshots = [];
 
-    let dlActivePeriod = 'alltime';
+    let dlActivePeriod = 'today';
 
     function toolCountsForPeriod(period) {
       const tools = Object.keys(TOOL_LABELS);
       const latest = dlSnapshots[dlSnapshots.length - 1];
       const prev = dlSnapshots[dlSnapshots.length - 2];
-      if (period === 'alltime') {
-        return tools.reduce((m, k) => { m[k] = latest.totals[k] || 0; return m; }, {});
-      }
       if (period === 'today') {
         return tools.reduce((m, k) => { m[k] = Math.max(0, (latest.totals[k]||0) - (prev.totals[k]||0)); return m; }, {});
       }
-      const n = period === '7d' ? 7 : 30;
+      const n = period === '7d' ? 7 : period === '30d' ? 30 : 90;
       const slice = dlSnapshots.length >= n + 1 ? dlSnapshots.slice(-(n + 1)) : dlSnapshots;
       return tools.reduce((m, k) => {
         m[k] = slice.slice(1).reduce((s, snap, i) => s + Math.max(0, (snap.totals[k]||0) - (slice[i].totals[k]||0)), 0);
@@ -650,18 +647,17 @@
       const tools = Object.keys(TOOL_LABELS);
       const counts = toolCountsForPeriod(period);
       const maxVal = Math.max(...Object.values(counts), 1);
-      const prefix = period === 'alltime' ? '' : '+';
-      const suffix = { alltime: '', today: ' today', '7d': ' / 7d', '30d': ' / 30d' }[period];
+      const prefix = '+';
+      const suffix = { today: ' today', '7d': ' / 7d', '30d': ' / 30d', '90d': ' / 90d' }[period];
       document.getElementById('dl-tool-rows').innerHTML = tools.map(k => {
         const val = counts[k] || 0;
         const pct = Math.round(val / maxVal * 100);
-        const label = val > 0 ? prefix + fmt(val) + suffix : (period === 'alltime' ? '0' : '');
         return `<div class="lp-dl-tool-row">
           <div class="lp-dl-tool-dot" style="background:${TOOL_COLORS[k]}"></div>
           <div class="lp-dl-tool-name">${TOOL_LABELS[k]}</div>
           <div class="lp-dl-bar-wrap"><div class="lp-dl-bar" style="width:${pct}%;background:${TOOL_COLORS[k]}"></div></div>
-          <div class="lp-dl-count">${period === 'alltime' ? fmt(val) : (val > 0 ? prefix + fmt(val) : '—')}</div>
-          <div class="lp-dl-daily" style="color:${TOOL_COLORS[k]}">${val > 0 && period !== 'alltime' ? suffix.trim() : ''}</div>
+          <div class="lp-dl-count">${val > 0 ? prefix + fmt(val) : '—'}</div>
+          <div class="lp-dl-daily" style="color:${TOOL_COLORS[k]}">${val > 0 ? suffix.trim() : ''}</div>
         </div>`;
       }).join('');
 
@@ -694,14 +690,12 @@
       const sum7 = last7.slice(1).reduce((s, snap, i) => s + tools.reduce((ts, k) => ts + Math.max(0, (snap.totals[k]||0) - (last7[i].totals[k]||0)), 0), 0);
       const last30 = dlSnapshots.length >= 31 ? dlSnapshots.slice(-31) : dlSnapshots;
       const sum30 = last30.slice(1).reduce((s, snap, i) => s + tools.reduce((ts, k) => ts + Math.max(0, (snap.totals[k]||0) - (last30[i].totals[k]||0)), 0), 0);
+      const last90 = dlSnapshots.length >= 91 ? dlSnapshots.slice(-91) : dlSnapshots;
+      const sum90 = last90.slice(1).reduce((s, snap, i) => s + tools.reduce((ts, k) => ts + Math.max(0, (snap.totals[k]||0) - (last90[i].totals[k]||0)), 0), 0);
 
       container.innerHTML = `
         <div class="lp-dl-summary">
-          <div class="lp-dl-summary-cell active" data-period="alltime" onclick="dlActivePeriod='alltime';renderToolRows('alltime')" style="cursor:pointer">
-            <div class="lp-dl-summary-num" style="color:var(--gold)">${fmt(total)}</div>
-            <div class="lp-dl-summary-lbl">All time</div>
-          </div>
-          <div class="lp-dl-summary-cell" data-period="today" onclick="dlActivePeriod='today';renderToolRows('today')" style="cursor:pointer">
+          <div class="lp-dl-summary-cell active" data-period="today" onclick="dlActivePeriod='today';renderToolRows('today')" style="cursor:pointer">
             <div class="lp-dl-summary-num" style="color:#A4C639">${todayDelta > 0 ? '+' + fmt(todayDelta) : '—'}</div>
             <div class="lp-dl-summary-lbl">Today</div>
           </div>
@@ -712,6 +706,10 @@
           <div class="lp-dl-summary-cell" data-period="30d" onclick="dlActivePeriod='30d';renderToolRows('30d')" style="cursor:pointer">
             <div class="lp-dl-summary-num">${dlSnapshots.length >= 31 ? fmt(sum30) : '—'}</div>
             <div class="lp-dl-summary-lbl">Last 30 days</div>
+          </div>
+          <div class="lp-dl-summary-cell" data-period="90d" onclick="dlActivePeriod='90d';renderToolRows('90d')" style="cursor:pointer">
+            <div class="lp-dl-summary-num">${dlSnapshots.length >= 91 ? fmt(sum90) : '—'}</div>
+            <div class="lp-dl-summary-lbl">Last 90 days</div>
           </div>
         </div>
         <div id="dl-tool-rows" class="lp-dl-tool-rows"></div>
