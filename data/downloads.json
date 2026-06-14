@@ -23,11 +23,11 @@
     {
       "date": "2026-06-14",
       "totals": {
-        "ileapp": 80474,
-        "aleapp": 60085,
+        "ileapp": 80486,
+        "aleapp": 60095,
         "rleapp": 3804,
         "vleapp": 1322,
-        "lava": 562
+        "lava": 564
       }
     }
   ]
