@@ -670,8 +670,11 @@
         const body = stripFrontmatter(raw);
         const html = marked.parse(body);
 
-        // Reading time — ~225 words/min
-        const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
+        // Reading time — ~225 words/min, counted from rendered text
+        // (keeps code/prose a reader sees, drops markdown syntax noise)
+        const wordCountEl = document.createElement('div');
+        wordCountEl.innerHTML = html;
+        const wordCount = (wordCountEl.textContent || '').trim().split(/\s+/).filter(Boolean).length;
         const readingMin = Math.max(1, Math.round(wordCount / 225));
 
         // Update page title & OG
