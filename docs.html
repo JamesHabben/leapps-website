@@ -192,7 +192,7 @@
     [data-theme="light"] .lp-code { background: #e8e4dc; color: #3a3530; }
     .lp-theme-toggle { background: none; border: 1px solid var(--border); color: var(--muted); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color .2s, border-color .2s; font-size: 1rem; flex-shrink: 0; }
     .lp-theme-toggle:hover { color: var(--gold); border-color: var(--gold); }
-  
+
     /* Search */
     .lp-search-wrap { position: relative; display: flex; align-items: center; }
     .lp-search-input { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .05em; background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: .4rem .75rem .4rem 2rem; width: 200px; outline: none; transition: border-color .2s, width .2s; }
@@ -206,7 +206,7 @@
     .lp-search-badge { font-family: var(--font-mono); font-size: .65rem; color: var(--muted); letter-spacing: .05em; margin-left: .75rem; white-space: nowrap; }
     .lp-search-empty { padding: .75rem; color: var(--muted); font-family: var(--font-mono); font-size: .75rem; text-align: center; }
     @media (max-width: 768px) { .lp-search-wrap { display: none; } }
-  
+
     .lp-mobile-search { padding: .5rem 0 .75rem; border-bottom: 1px solid var(--border); margin-bottom: .25rem; position: relative; }
     .lp-mobile-search-input { width: 100%; font-family: var(--font-mono); font-size: .8rem; letter-spacing: .04em; background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: .5rem .75rem .5rem 2.25rem; outline: none; transition: border-color .2s; }
     .lp-mobile-search-input:focus { border-color: var(--gold); }
@@ -415,9 +415,9 @@
         </div>
 
         <div id="tab-cli" style="display:none;">
-          <div class="lp-code-label">Install dependencies</div>
+          <div class="lp-code-label">Step 1 — Install dependencies</div>
           <div class="lp-code"><span class="kw">pip</span> install -r requirements.txt</div>
-          <div class="lp-code-label">Run from the command line</div>
+          <div class="lp-code-label">Step 2 — Run from the command line</div>
           <div class="lp-code"><span class="kw">python</span> iLEAPP.py <span class="kw">-t</span> <span class="st">fs</span> <span class="kw">-i</span> <span class="st">/path/to/extraction</span> <span class="kw">-o</span> <span class="st">/path/to/output</span></div>
           <div class="lp-code-label">General options</div>
           <div class="lp-code"><span class="kw">-h</span>, <span class="kw">--help</span>                        <span class="cm"># show help message and exit</span>
@@ -445,8 +445,8 @@
         <p class="lp-step-desc">When processing completes, LEAPPs writes an HTML report to your output folder. You have two ways to review it.</p>
 
         <ul class="lp-checklist" style="margin-bottom:1.25rem;">
-          <li><i class="ti ti-file-type-html"></i><strong style="color:var(--text);">Direct HTML</strong> — open <code style="font-family:var(--font-mono);font-size:.8rem;color:var(--gold);">index.html</code> in your output folder in any browser. Artifacts are organized into categories with search and filtering built in.</li>
-          <li><i class="ti ti-eye"></i><strong style="color:var(--text);">LAVA viewer</strong> — for a richer, structured experience load the report into LAVA (see below).</li>
+          <li><i class="ti ti-file-type-html"></i><div><strong style="color:var(--text);">Direct HTML</strong> — open <code style="font-family:var(--font-mono);font-size:.8rem;color:var(--gold);">index.html</code> in your output folder in any browser. Artifacts are organized into categories with search and filtering built in.</div></li>
+          <li><i class="ti ti-eye"></i><div><strong style="color:var(--text);">LAVA viewer</strong> — for a richer, structured experience load the report into LAVA (see below).</div></li>
         </ul>
 
         <div class="lp-lava-callout">
@@ -646,7 +646,7 @@
           artifactRess.forEach(({ tool, files }) => {
             if (!Array.isArray(files)) return;
             files.filter(f => f.name.endsWith('.py') && f.name !== '__init__.py').forEach(f => {
-              artifacts.push({ name: f.name.replace('.py', '').replace(/_/g, ' '), tool: tool.name, url: 'https://leapps.org/artifacts' });
+              artifacts.push({ name: f.name.replace('.py', '').replace(/_/g, ' '), tool: tool.name, url: `https://github.com/${tool.repo}/blob/main/scripts/artifacts/${f.name}` });
             });
           });
           cache = { posts, artifacts, pages };
