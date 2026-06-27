@@ -67,3 +67,68 @@
   if (document.body) showBanner();
   else document.addEventListener('DOMContentLoaded', showBanner);
 })();
+
+// Outbound + download click tracking (GA4).
+//
+// One delegated listener fires GA4 events for clicks that leave the site:
+//   - `download`        — a GitHub release/archive link or an asset file
+//                         (PDF walkthroughs, zips). This is download *intent*:
+//                         the actual file transfer happens on github.com,
+//                         which we can't observe, so a release-link click is
+//                         the strongest signal available client-side.
+//   - `outbound_click`  — any other cross-origin link.
+// Param names mirror GA4's built-in enhanced-measurement dimensions
+// (link_url, link_domain, link_text, file_name, file_extension), so they
+// populate existing reports without custom-dimension setup; `tool` is the
+// only custom param (register it in GA4 to break downloads down by tool).
+//
+// The listener no-ops until window.gtag exists, so it respects the same
+// consent gate as the loader above — declined visitors are never tracked.
+(function () {
+  var ASSET_RE = /\.(zip|exe|dmg|pkg|whl|tar\.gz|tgz|7z|pdf)(?:[?#]|$)/i;
+
+  function repoTool(url) {
+    // github.com/<owner>/<repo>/... -> normalized tool name (LAVA-releases -> LAVA)
+    if (url.hostname !== 'github.com') return '';
+    var seg = url.pathname.split('/').filter(Boolean);
+    return seg.length < 2 ? '' : seg[1].replace(/-releases$/i, '');
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!window.gtag) return; // no consent / GA not loaded
+    var a = e.target && e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+
+    var url;
+    try { url = new URL(a.href, window.location.href); } catch (_) { return; }
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
+    var crossHost = url.hostname !== window.location.hostname;
+    var isAsset = ASSET_RE.test(url.pathname);
+    var isRelease = url.hostname === 'github.com' &&
+      /\/(releases|archive|zipball|tarball)(\/|$)/.test(url.pathname);
+    if (!crossHost && !isAsset) return; // same-site internal nav: ignore
+
+    var label = (a.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 100);
+    var href = url.href.slice(0, 100);
+
+    if (isAsset || isRelease) {
+      var fname = url.pathname.split('/').filter(Boolean).pop() || '';
+      var dot = fname.lastIndexOf('.');
+      window.gtag('event', 'download', {
+        link_url: href,
+        link_domain: url.hostname,
+        link_text: label,
+        file_name: fname.slice(0, 100),
+        file_extension: dot > -1 ? fname.slice(dot + 1).toLowerCase() : '',
+        tool: repoTool(url)
+      });
+    } else {
+      window.gtag('event', 'outbound_click', {
+        link_url: href,
+        link_domain: url.hostname,
+        link_text: label
+      });
+    }
+  }, true); // capture phase: fire even if a handler stops propagation
+})();
